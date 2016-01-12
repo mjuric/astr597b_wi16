@@ -1,0 +1,58 @@
+#!/bin/bash
+
+set -e
+
+# The name of the IPython profile. Change this if you want it named something else.
+PROFILE_NAME=nbserver
+
+# Safety first...
+if [[ -e ~/jupyter-profile-$PROFILE_NAME/ ]]; then
+	echo "Directory ~/jupyter-profile-$PROFILE_NAME exists; refusing to proceed out of abundance of caution. Remove it first, if that's what you want."
+	exit -1
+fi
+
+# Create server profile directory
+mkdir ~/jupyter-profile-$PROFILE_NAME
+cd ~/jupyter-profile-$PROFILE_NAME/
+
+# Create the self-signed SSL certificate
+echo -e "\n\n\n\n\n\n\n" | openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout mycert.pem -out mycert.pem 2> /dev/null
+
+# Password for your IPython notebooks
+echo "Enter a (strong) password that you will use to connect to remote IPython notebooks."
+PASS=$(python -c 'from IPython.lib import passwd; print passwd()')
+
+# Generate the config file
+cat > jupyter_notebook_config.py <<-EOM
+	c = get_config()
+
+	# Kernel config
+	c.IPKernelApp.pylab = 'inline'  # if you want plotting support always
+
+	# Notebook config
+	c.NotebookApp.certfile = u'$HOME/jupyter-profile-$PROFILE_NAME/mycert.pem'
+	c.NotebookApp.ip = '*'
+	c.NotebookApp.open_browser = False
+	c.NotebookApp.password = u'$PASS'
+
+	# It is a good idea to put it on a known, fixed port. Uncomment
+	# the line below if you want that (but make sure nobody else on
+	# the machine is using the same port)!
+	# c.NotebookApp.port = 9999
+EOM
+
+# Generate convenience shell script
+cat > start <<-EOM
+	env JUPYTER_CONFIG_DIR=~/jupyter-profile-$PROFILE_NAME jupyter notebook
+EOM
+chmod +x start
+
+echo
+echo "To start your IPython notebook server, run:"
+echo
+echo "    env JUPYTER_CONFIG_DIR=~/jupyter-profile-$PROFILE_NAME jupyter notebook"
+echo
+echo "For your convenience, I've also created a shell script that lets you run nbserver as:"
+echo
+echo "    ~/jupyter-profile-$PROFILE_NAME/start"
+echo
