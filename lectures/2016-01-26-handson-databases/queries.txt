@@ -1,0 +1,49 @@
+-- The query for field 1
+select
+  s.objid,
+  s.l, s.b,
+  s.extinction_r as Ar,
+  s.dered_g as g, s.dered_r as r,
+  s.err_g as gErr, s.err_r as gErr,
+  s.flags
+
+from
+  Star s JOIN fGetNearbyObjEq(341.6, 31.7, 60) n on s.objId = n.objID
+  
+into
+  mydb.field1
+
+-- The query for field 2
+select
+  s.objid,
+  s.l, s.b,
+  s.extinction_r as Ar,
+  s.dered_g as g, s.dered_r as r,
+  s.err_g as gErr, s.err_r as gErr,
+  s.flags
+
+from
+  Star s JOIN fGetNearbyObjEq(115.2, 32.7, 60) n on s.objId = n.objID
+  
+into
+  mydb.field2
+
+-- Filtered all sky query
+select
+  s.objid,
+  s.l, s.b,
+  s.extinction_r as Ar,
+  s.dered_g as g, s.dered_r as r,
+  s.err_g as gErr, s.err_r as gErr,
+  s.flags
+
+from
+  Star s
+  
+where
+  b > 40
+  and 0.2 < g - r and g - r < 0.4
+  and 21 < r and r < 21.1
+  
+into
+  mydb.northfiltered
