@@ -1,0 +1,19 @@
+# Schema for SDSS table subset
+filters: {complevel: 5, complib: blosc}
+schema:
+  common:
+    primary_key: sdss_id
+    spatial_keys: [ra, dec]
+    columns:
+    - [sdss_id, u8]
+    - [objid, u8]
+    - [ra, f8]
+    - [dec, f8]
+    - [l, f8]
+    - [b, f8]
+    - [Ar, f4]
+    - [g, f4]
+    - [r, f4]
+    - [gErr, f4]
+    - [rErr, f4]
+    - [flags, u8]
